@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	<style>
+		.btns {
+			background-color:#ff1744;
+			color:#ffffff;
+			border:1px solid #ff1744;
+			border-radius:5px;
+			font-weight:bold;
+		}
+	</style>
+</head>
+<body style="color:#455a64;">
+<div style="margin:2px 0px 3px 0px;width:50%;float:left;text-align:center;">
+	<p style="margin:0px;font-family:'Monospace';font-weight:bold;">CS:<span id="score">0</span></p>
+	</div>
+	<div style="margin:2px 0px 3px 0px;width:50%;float:right;text-align:center;">
+	<p style="margin:0px;font-family:'Monospace';font-weight:bold;">HI:<span id="HIscore">0</span></p>
+</div>
+	<div style="padding:22px; padding-bottom: 10px;padding-top:10px;">
+       <canvas id="plane" height="300" width="300" style="border:2px solid #546e7a;">Not supported</canvas>
+    </div>
+    <div id="controlBtns" style="text-align:center; padding:20px; padding-top:5px;display:none;" >
+    	<button id="up" class="btns" onclick="changeDir('up')" style="height:47px; width:90px;">UP</button><br/><br/>
+    	<button id="left" class="btns" onclick="changeDir('left')" style="height:47px; width:90px;margin-right:55px;">LEFT</button>
+        <button id="right" class="btns" onclick="changeDir('right')" style="height:47px; width:90px;">RIGHT</button><br/><br/>
+        <button id="down" class="btns" onclick="changeDir('down')" style="height:47px; width:90px;">DOWN</button><br/>
+    </div>
+    <div id="startBtn" style="text-align:center; padding:15px; padding-top:0px;" >
+    	<p id="msg" style="font-size:20px;font-weight:bold;color:#ff1744;margin:10px 0px 20px 0px; display:none;"></p>
+    		<button id="sBtn" class="btns" onclick="startNewGame()" style="height:60px; width:90px;">START</button>
+         
+	</div>
+<script>
+var c= document.getElementById("plane");
+var ctx=c.getContext("2d");
+var sW=10;
+var colorsDark=["#b71c1c","#880e4f","#4a148c","#311b92","#1a237e","#0d47a1","#01579b","#006064","#1b5e20","#9e9d24","#f57f17","#ff6f00","#e65100","#bf360c","#3e2723"];
+var colorsLight=["#e57373","#f06292","#ba68c8","#9575cd","#7986cb","#64b5f6","#4fc3f7","#4dd0e1","#81c784","#dce775","#fff176","#ffd54f","#ffb74d","#ff8a65","#a1887f"];
+var strike=false;
+var snakeXs=[105,5];
+var snakeYs=[5,5];
+var food=[175,5];
+var foodd=colorsDark[0];
+var foodl=colorsLight[0];
+var foodc=(new Date()).getTime();
+var foodsa=0;
+var dir="right";
+var eat=false;
+var speed=120;
+var score=0;
+var hiScore=0;
+var speFood=false;
+var snkLength=100;
+var speFoodRad=6;
+var reduceBy=1;
+var lRe=0;
+setHighScore();
+var msg="Oops..! Better luck next time";
+var interval;
+
+function startGame()
+{
+	    var startTime=(new Date()).getTime();
+		drawSnake();
+		drawFood();
+        interval=setInterval(function(){
+    	var intTime=(new Date()).getTime();
+        if(speed>40 && (intTime-startTime)>=30000)
+        {
+        	speed-=5;
+        	clearInterval(interval);
+            startGame();
+        }
+		ctx.clearRect(0,0,300,300);
+		move();
+		drawSnake();
+		drawFood();
+		if(checkStrike())
+		{
+			clearInterval(interval);
+		}
+		
+		},speed);
+		drawFood();
+	
+	
+}
+function startNewGame()
+{
+strike=false;
+snakeXs=[105,5];
+snakeYs=[5,5];
+food=[175,5];
+foodd=colorsDark[0];
+foodl=colorsLight[0];
+foodc=(new Date()).getTime();
+foodsa=0;
+dir="right";
+eat=false;
+speed=120;
+score=0;
+speFood=false;
+snkLength=100;
+speFoodRad=6;
+reduceBy=1;
+lRe=0;
+msg="Oops..! Better luck next time";
+document.getElementById("score").innerHTML=score;
+document.getElementById("HIscore").style.color="#455a64";
+document.getElementById("controlBtns").style.display="block";
+document.getElementById("startBtn").style.display="none";
+document.getElementById("msg").style.display="none";
+startGame();
+
+
+}
+function setHighScore()
+{
+	var nowS=new Date();
+	if(score>hiScore)
+	{
+		hiScore=score;
+		msg="Your new High Score is "+hiScore+"<br/>"+"Keep it up!";
+		var hiforsave=((((nowS.getTime())+hiScore)*23)+46)*7;
+		setCookie("hi",hiforsave,90);
+		setCookie("t",(nowS.toString()),90);
+		setCookie("m",(nowS.getMilliseconds()),90);
+		document.getElementById("HIscore").style.color=foodd;
+	}
+	else
+	{
+    var ths=getCookie("hi");
+	var thst=getCookie("t");
+	var thsm=getCookie("m");
+	if(thst!="" && ths!="")
+	{
+		
+		thst=new Date(thst);
+		thst.setMilliseconds(thsm);
+		if(nowS.getTime()>=thst.getTime())
+		{
+			if(ths%7==0 && (((ths/7)-46)%23)==0)
+			{
+			ths=(((ths/7)-46)/23);
+			ths=ths-thst.getTime();
+			hiScore=ths;
+			}
+			
+		}
+	}
+	}
+	document.getElementById("HIscore").innerHTML=hiScore;
+}
+function scoreUp()
+{
+	var tscore=100;
+	if((food[0]==5 || food[0]==295) && (food[1]==5 || food[1]==295))
+	{
+		tscore=1000;
+	}
+	else if(food[0]==5 || food[0]==295 || food[1]==5 || food[1]==295)
+	{
+		tscore=500;
+	}
+	tscore=(tscore-(2*foodsa));
+	if(speed<120)
+	{
+	tscore=(tscore*((120-speed)/10));
+	}
+	score+=Math.floor(tscore);
+	setHighScore();
+	document.getElementById("score").innerHTML=score;
+	document.getElementById("score").style.color=foodd;
+}
+function checkStrike()
+{
+	if(strike || snakeXs[0]<=0 || snakeXs[0]>=300 || snakeYs[0]<=0 || snakeYs[0]>=300)
+	{
+		strike=true;
+		document.getElementById("controlBtns").style.display="none";
+		document.getElementById("sBtn").innerHTML="RESTART";
+		document.getElementById("startBtn").style.display="block";
+		document.getElementById("msg").innerHTML=msg;
+		document.getElementById("msg").style.display="block";
+		return strike;
+	}
+	return false;
+}
+
+function drawFood()
+{
+	if(snakeXs[0]==food[0] && snakeYs[0]==food[1])
+	{
+		scoreUp();
+		snkLength+=sW;
+		if(speFood)
+		{
+			reduceBy=Math.floor((snkLength*(speFoodRad/10))/10);
+			snkLength-=(reduceBy+1)*10;
+			speFood=false;
+		}
+		else if(snkLength>=800 && (snkLength%100)==0)
+		{
+			speFood=true;
+		}
+		else
+		{
+			eat=true;
+		}
+		genNewFood();
+	}
+	else
+	{
+		
+		if(speFood)
+		{
+		ctx.beginPath();
+		ctx.arc(food[0],food[1],speFoodRad,0,2*Math.PI);
+		ctx.fillStyle=foodd;
+		ctx.fill();
+		checkFoodTime();
+		}
+		else
+		{
+		ctx.beginPath();
+		ctx.arc(food[0],food[1],5,0,2*Math.PI);
+		ctx.fillStyle=foodl;
+		ctx.fill();
+		ctx.beginPath();
+		ctx.lineWidth=2;
+		checkFoodTime();
+		ctx.arc(food[0],food[1],5,foodsa*Math.PI,2*Math.PI);
+		ctx.strokeStyle=foodd;
+		ctx.stroke();
+		}
+	}
+	
+}
+function genNewFood()
+{
+	food[0]=(Math.floor((Math.random() * 29))*10+5);
+	food[1]=(Math.floor((Math.random() * 29))*10+5);
+	var tcol=Math.floor(Math.random() * 14);
+	foodd=colorsDark[tcol];
+	foodl=colorsLight[tcol];
+	foodc=(new Date()).getTime();
+	foodsa=0;
+	for(var i=1;i<snakeXs.length;i++)
+	{
+	var ac=Math.sqrt(Math.pow((snakeXs[i]-snakeXs[i-1]),2)+Math.pow((snakeYs[i]-snakeYs[i-1]),2));
+	var ab=Math.sqrt(Math.pow((snakeXs[i]-food[0]),2)+Math.pow((snakeYs[i]-food[1]),2));
+	var bc=Math.sqrt(Math.pow((food[0]-snakeXs[i-1]),2)+Math.pow((food[1]-snakeYs[i-1]),2));
+	if((ab+bc)==ac)
+	{
+		genNewFood();
+		break;
+	}
+	}
+	drawFood();
+}
+
+function checkFoodTime()
+{
+	
+	var now= (new Date()).getTime();
+	var diff=now-foodc;
+	if(diff>=13000)
+	{
+		foodsa=2;
+	}
+	else if(diff>=3000)
+	{
+		foodsa=((diff-3000)/10000)*2;
+	}
+	
+	if(speFood)
+	{
+	if(diff>=15000)
+	{
+		speFood=false;
+		genNewFood();
+	}
+	else if(diff>=5000)
+	{
+		if(Math.floor(diff/2000)%2!=0 && lRe<Math.floor(diff/2000))
+		{
+		speFoodRad--;
+		lRe=Math.floor(diff/2000);
+		}
+	}
+	else
+	{
+		speFoodRad=(speFoodRad==7)?6:7;
+		lRe=0;
+	}
+		
+	}
+	
+	
+}
+
+function move()
+{
+	if(dir=="up")
+	{
+		snakeYs[0]=snakeYs[0]-sW;
+	}
+	else if(dir=="down")
+	{
+		snakeYs[0]=snakeYs[0]+sW;
+	}
+	else if(dir=="left")
+	{
+		snakeXs[0]=snakeXs[0]-sW;
+	}
+	else if(dir=="right")
+	{
+		snakeXs[0]=snakeXs[0]+sW;
+	}
+	
+	if(eat)
+	{
+		eat=false;
+	}
+	else
+	{
+		for(var i=1;i<=reduceBy;i++)
+		{
+	var t=snakeXs.length-1;
+	
+	if(snakeXs[t-1]>snakeXs[t])
+	{
+		snakeXs[t]=snakeXs[t]+sW;
+	}
+	else if(snakeXs[t-1]<snakeXs[t])
+	{
+		snakeXs[t]=snakeXs[t]-sW;
+	}
+	else if(snakeYs[t-1]>snakeYs[t])
+	{
+		snakeYs[t]=snakeYs[t]+sW;
+	}
+	else if(snakeYs[t-1]<snakeYs[t])
+	{
+		snakeYs[t]=snakeYs[t]-sW;
+	}
+	
+	if(snakeXs[t-1] == snakeXs[t] && snakeYs[t-1] == snakeYs[t])
+	{
+		snakeXs.pop();
+		snakeYs.pop();
+	}
+	}
+	reduceBy=1;
+	}
+	
+}
+
+function changeDir(d)
+{
+	if(d=="up")
+	{
+		if(!(dir=="up" || dir=="down"))
+		{
+			dir="up";
+			snakeXs.unshift(snakeXs[0]);
+			snakeYs.unshift(snakeYs[0]);
+		}
+	}
+	else if(d=="down")
+	{
+		if(!(dir=="up" || dir=="down"))
+		{
+			dir="down";
+			snakeXs.unshift(snakeXs[0]);
+			snakeYs.unshift(snakeYs[0]);
+		}
+	}
+	else if(d=="left")
+	{
+		if(!(dir=="left" || dir=="right"))
+		{
+			dir="left";
+			snakeXs.unshift(snakeXs[0]);
+			snakeYs.unshift(snakeYs[0]);
+		}
+	}
+	else if(d=="right")
+	{
+		if(!(dir=="left" || dir=="right"))
+		{
+			dir="right";
+			snakeXs.unshift(snakeXs[0]);
+			snakeYs.unshift(snakeYs[0]);
+		}
+	}
+}
+
+function drawSnake()
+{
+ctx.beginPath();
+ctx.lineWidth=sW;
+ctx.lineCap="round";
+ctx.lineJoin="round";
+ctx.strokeStyle="#00796b";
+ctx.moveTo(snakeXs[0],snakeYs[0]);
+for(var i=1;i<snakeXs.length;i++)
+{
+	ctx.lineTo(snakeXs[i],snakeYs[i]);
+	
+	if(i>=4)
+	{
+		var ac=Math.sqrt(Math.pow((snakeXs[i]-snakeXs[i-1]),2)+Math.pow((snakeYs[i]-snakeYs[i-1]),2));
+		var ab=Math.sqrt(Math.pow((snakeXs[i]-snakeXs[0]),2)+Math.pow((snakeYs[i]-snakeYs[0]),2));
+		var bc=Math.sqrt(Math.pow((snakeXs[0]-snakeXs[i-1]),2)+Math.pow((snakeYs[0]-snakeYs[i-1]),2));
+		if((ab+bc)==ac)
+		{
+			strike=true;
+		}
+	}
+	
+	
+}
+		ctx.stroke();
+		
+		ctx.beginPath();
+		ctx.arc(snakeXs[0],snakeYs[0],4,0,2*Math.PI);
+		ctx.fillStyle="white";
+		ctx.lineWidth=5;
+		ctx.stroke();
+		ctx.fill();
+}
+function setCookie(cname,cvalue,exdays) {
+    var d = new Date();
+    d.setTime(d.getTime() + (exdays*24*60*60*1000));
+    var expires = "expires=" + d.toGMTString();
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+}
+function getCookie(cname) {
+    var name = cname + "=";
+    var decodedCookie = decodeURIComponent(document.cookie);
+    var ca = decodedCookie.split(';');
+    for(var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return "";
+}
+
+</script>
+</body>
+</html>
