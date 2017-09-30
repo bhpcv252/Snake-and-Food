@@ -10,4 +10,4 @@ There are two types of food.  
 Scores are dynamic. It depends on the time, location of food, and speed of snake. The more difficult to grab food , the more high score you'll get.
 
 ## Getting started
-Just run `Game.html` file and start playing.
+Just run the `Game.html` file and start playing.
