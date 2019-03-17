@@ -1,7 +1,14 @@
+<!-- Author: Sonu Singh-->
+<!-- Email: bhpcv252@gmail.com-->
 <!DOCTYPE html>
 <html>
 <head>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Snake and Food - A Sonu Singh Production</title>
+	<meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 	<style>
 		.btns {
 			background-color:#ff1744;
@@ -12,34 +19,47 @@
 		}
 	</style>
 </head>
-<body style="color:#455a64;">
-<div style="margin:2px 0px 3px 0px;width:50%;float:left;text-align:center;">
-	<p style="margin:0px;font-family:'Monospace';font-weight:bold;">CS:<span id="score">0</span></p>
+<body style="color:#fff;background-color:#455a64;">
+<div class="container">
+<div class="row" style="padding:40px 0px;">
+<div class="col-md-4 col-sm-4 col-xs-4" style="padding-top:10%;text-align:center;">
+	<p style="margin:0px;font-family:'Monospace';font-weight:bold;font-size:4.5vw;">CS: <span id="score">0</span></p>
 	</div>
-	<div style="margin:2px 0px 3px 0px;width:50%;float:right;text-align:center;">
-	<p style="margin:0px;font-family:'Monospace';font-weight:bold;">HI:<span id="HIscore">0</span></p>
-</div>
-	<div style="padding:22px; padding-bottom: 10px;padding-top:10px;">
-       <canvas id="plane" height="300" width="300" style="border:2px solid #546e7a;">Not supported</canvas>
+
+	<div class="col-md-4 col-sm-4 col-xs-4" style="padding:22px; padding-bottom: 10px;padding-top:10px;text-align:center;display:table-cell;">
+       <canvas id="plane" height="300" width="300" style="border:10px dashed #b0bec5;padding:3px;border-radius:10px;">Not supported</canvas>
     </div>
-    <div id="controlBtns" style="text-align:center; padding:20px; padding-top:5px;display:none;" >
+	<div class="col-md-4 col-sm-4 col-xs-4" style="padding-top:10%;text-align:center;">
+	<p style="margin:0px;font-family:'Monospace';font-weight:bold;font-size:4.5vw;">HI: <span id="HIscore">0</span></p>
+</div>
+</div>
+</div>
+<div class="container">
+<div class="row">
+<div class="col-md-12" style="text-align:center;">
+    <div id="controlBtns" style="padding:20px; padding-top:5px;display:none;width:100%;" >
     	<button id="up" class="btns" onclick="changeDir('up')" style="height:47px; width:90px;">UP</button><br/><br/>
     	<button id="left" class="btns" onclick="changeDir('left')" style="height:47px; width:90px;margin-right:55px;">LEFT</button>
         <button id="right" class="btns" onclick="changeDir('right')" style="height:47px; width:90px;">RIGHT</button><br/><br/>
         <button id="down" class="btns" onclick="changeDir('down')" style="height:47px; width:90px;">DOWN</button><br/>
     </div>
     <div id="startBtn" style="text-align:center; padding:15px; padding-top:0px;" >
-    	<p id="msg" style="font-size:20px;font-weight:bold;color:#ff1744;margin:10px 0px 20px 0px; display:none;"></p>
+    	<p id="msg" style="font-size:20px;font-weight:bold;background-color:#00796b;color:#fff;padding:10px 30px 10px 30px; display:none;border-radius:50px;width:max-content;margin-left:auto;margin-right:auto;"></p>
     		<button id="sBtn" class="btns" onclick="startNewGame()" style="height:60px; width:90px;">START</button>
-         
+
 	</div>
+	
+	</div>
+</div>
+</div>
+<span style="position:fixed;bottom:80px;right:70px;font-size:15px;">A Sonu Singh Production</span>
 <script>
 var c= document.getElementById("plane");
 var ctx=c.getContext("2d");
 var sW=10;
-var colorsDark=["#b71c1c","#880e4f","#4a148c","#311b92","#1a237e","#0d47a1","#01579b","#006064","#1b5e20","#9e9d24","#f57f17","#ff6f00","#e65100","#bf360c","#3e2723"];
-var colorsLight=["#e57373","#f06292","#ba68c8","#9575cd","#7986cb","#64b5f6","#4fc3f7","#4dd0e1","#81c784","#dce775","#fff176","#ffd54f","#ffb74d","#ff8a65","#a1887f"];
-var strike=false;
+var colorsLight=["#b71c1c","#880e4f","#4a148c","#311b92","#1a237e","#0d47a1","#01579b","#006064","#1b5e20","#9e9d24","#f57f17","#ff6f00","#e65100","#bf360c","#3e2723"];
+var colorsDark=["#e57373","#f06292","#ba68c8","#9575cd","#7986cb","#64b5f6","#4fc3f7","#4dd0e1","#81c784","#dce775","#fff176","#ffd54f","#ffb74d","#ff8a65","#a1887f"];
+var strike=true;
 var snakeXs=[105,5];
 var snakeYs=[5,5];
 var food=[175,5];
@@ -49,8 +69,9 @@ var foodc=(new Date()).getTime();
 var foodsa=0;
 var dir="right";
 var eat=false;
-var speed=120;
+var speed=110;
 var score=0;
+var canCM=true;
 var hiScore=0;
 var speFood=false;
 var snkLength=100;
@@ -60,6 +81,8 @@ var lRe=0;
 setHighScore();
 var msg="Oops..! Better luck next time";
 var interval;
+
+
 
 function startGame()
 {
@@ -82,14 +105,15 @@ function startGame()
 		{
 			clearInterval(interval);
 		}
-		
+
 		},speed);
 		drawFood();
-	
-	
+
+
 }
 function startNewGame()
 {
+
 strike=false;
 snakeXs=[105,5];
 snakeYs=[5,5];
@@ -100,7 +124,8 @@ foodc=(new Date()).getTime();
 foodsa=0;
 dir="right";
 eat=false;
-speed=120;
+canCM=true;
+speed=110;
 score=0;
 speFood=false;
 snkLength=100;
@@ -109,7 +134,7 @@ reduceBy=1;
 lRe=0;
 msg="Oops..! Better luck next time";
 document.getElementById("score").innerHTML=score;
-document.getElementById("HIscore").style.color="#455a64";
+document.getElementById("HIscore").style.color="#ffffff";
 document.getElementById("controlBtns").style.display="block";
 document.getElementById("startBtn").style.display="none";
 document.getElementById("msg").style.display="none";
@@ -123,7 +148,7 @@ function setHighScore()
 	if(score>hiScore)
 	{
 		hiScore=score;
-		msg="Your new High Score is "+hiScore+"<br/>"+"Keep it up!";
+		msg="Your new High Score is <span style='font-size:24px;'>"+hiScore+"</span><br/>"+"Keep it up!";
 		var hiforsave=((((nowS.getTime())+hiScore)*23)+46)*7;
 		setCookie("hi",hiforsave,90);
 		setCookie("t",(nowS.toString()),90);
@@ -137,7 +162,7 @@ function setHighScore()
 	var thsm=getCookie("m");
 	if(thst!="" && ths!="")
 	{
-		
+
 		thst=new Date(thst);
 		thst.setMilliseconds(thsm);
 		if(nowS.getTime()>=thst.getTime())
@@ -148,7 +173,7 @@ function setHighScore()
 			ths=ths-thst.getTime();
 			hiScore=ths;
 			}
-			
+
 		}
 	}
 	}
@@ -202,7 +227,7 @@ function drawFood()
 			snkLength-=(reduceBy+1)*10;
 			speFood=false;
 		}
-		else if(snkLength>=800 && (snkLength%100)==0)
+		else if(snkLength>=100 && (snkLength%100)==0)
 		{
 			speFood=true;
 		}
@@ -214,7 +239,7 @@ function drawFood()
 	}
 	else
 	{
-		
+
 		if(speFood)
 		{
 		ctx.beginPath();
@@ -222,6 +247,11 @@ function drawFood()
 		ctx.fillStyle=foodd;
 		ctx.fill();
 		checkFoodTime();
+		/* ctx.beginPath();
+		ctx.lineWidth=2;
+		ctx.arc(food[0],food[1],5,0,2*Math.PI);
+		ctx.strokeStyle="#fff";
+		ctx.stroke(); */
 		}
 		else
 		{
@@ -231,13 +261,18 @@ function drawFood()
 		ctx.fill();
 		ctx.beginPath();
 		ctx.lineWidth=2;
+		ctx.arc(food[0],food[1],5,0,2*Math.PI);
+		ctx.strokeStyle="#fff";
+		ctx.stroke();
+		ctx.beginPath();
+		ctx.lineWidth=2;
 		checkFoodTime();
 		ctx.arc(food[0],food[1],5,foodsa*Math.PI,2*Math.PI);
 		ctx.strokeStyle=foodd;
 		ctx.stroke();
 		}
 	}
-	
+
 }
 function genNewFood()
 {
@@ -264,7 +299,7 @@ function genNewFood()
 
 function checkFoodTime()
 {
-	
+
 	var now= (new Date()).getTime();
 	var diff=now-foodc;
 	if(diff>=13000)
@@ -275,7 +310,7 @@ function checkFoodTime()
 	{
 		foodsa=((diff-3000)/10000)*2;
 	}
-	
+
 	if(speFood)
 	{
 	if(diff>=15000)
@@ -296,10 +331,10 @@ function checkFoodTime()
 		speFoodRad=(speFoodRad==7)?6:7;
 		lRe=0;
 	}
-		
+
 	}
-	
-	
+
+
 }
 
 function move()
@@ -320,7 +355,7 @@ function move()
 	{
 		snakeXs[0]=snakeXs[0]+sW;
 	}
-	
+canCM=true;
 	if(eat)
 	{
 		eat=false;
@@ -330,7 +365,7 @@ function move()
 		for(var i=1;i<=reduceBy;i++)
 		{
 	var t=snakeXs.length-1;
-	
+
 	if(snakeXs[t-1]>snakeXs[t])
 	{
 		snakeXs[t]=snakeXs[t]+sW;
@@ -347,7 +382,7 @@ function move()
 	{
 		snakeYs[t]=snakeYs[t]-sW;
 	}
-	
+
 	if(snakeXs[t-1] == snakeXs[t] && snakeYs[t-1] == snakeYs[t])
 	{
 		snakeXs.pop();
@@ -356,13 +391,14 @@ function move()
 	}
 	reduceBy=1;
 	}
-	
+
 }
 
 function changeDir(d)
 {
-	if(d=="up")
+	if(d=="up" && canCM)
 	{
+	canCM=false;
 		if(!(dir=="up" || dir=="down"))
 		{
 			dir="up";
@@ -370,8 +406,9 @@ function changeDir(d)
 			snakeYs.unshift(snakeYs[0]);
 		}
 	}
-	else if(d=="down")
+	else if(d=="down" && canCM)
 	{
+	canCM=false;
 		if(!(dir=="up" || dir=="down"))
 		{
 			dir="down";
@@ -379,8 +416,9 @@ function changeDir(d)
 			snakeYs.unshift(snakeYs[0]);
 		}
 	}
-	else if(d=="left")
+	else if(d=="left" && canCM)
 	{
+	canCM=false;
 		if(!(dir=="left" || dir=="right"))
 		{
 			dir="left";
@@ -388,8 +426,9 @@ function changeDir(d)
 			snakeYs.unshift(snakeYs[0]);
 		}
 	}
-	else if(d=="right")
+	else if(d=="right" && canCM)
 	{
+	canCM=false;
 		if(!(dir=="left" || dir=="right"))
 		{
 			dir="right";
@@ -405,12 +444,12 @@ ctx.beginPath();
 ctx.lineWidth=sW;
 ctx.lineCap="round";
 ctx.lineJoin="round";
-ctx.strokeStyle="#00796b";
+ctx.strokeStyle="#fff";
 ctx.moveTo(snakeXs[0],snakeYs[0]);
 for(var i=1;i<snakeXs.length;i++)
 {
 	ctx.lineTo(snakeXs[i],snakeYs[i]);
-	
+
 	if(i>=4)
 	{
 		var ac=Math.sqrt(Math.pow((snakeXs[i]-snakeXs[i-1]),2)+Math.pow((snakeYs[i]-snakeYs[i-1]),2));
@@ -421,14 +460,14 @@ for(var i=1;i<snakeXs.length;i++)
 			strike=true;
 		}
 	}
-	
-	
+
+
 }
 		ctx.stroke();
-		
+
 		ctx.beginPath();
 		ctx.arc(snakeXs[0],snakeYs[0],4,0,2*Math.PI);
-		ctx.fillStyle="white";
+		ctx.fillStyle="#546e7a";
 		ctx.lineWidth=5;
 		ctx.stroke();
 		ctx.fill();
@@ -453,6 +492,36 @@ function getCookie(cname) {
         }
     }
     return "";
+}
+
+document.onkeydown = keyPressNav;
+
+function keyPressNav(e) {
+
+    e = e || window.event;
+
+    if (e.keyCode == '38' || e.keyCode == '87') {
+        // up arrow
+		changeDir('up')
+    }
+    else if (e.keyCode == '40' || e.keyCode == '83') {
+        // down arrow
+		changeDir('down')
+    }
+    else if (e.keyCode == '37' || e.keyCode == '65') {
+       // left arrow
+	   changeDir('left')
+    }
+    else if (e.keyCode == '39' || e.keyCode == '68') {
+       // right arrow
+	   changeDir('right')
+    }
+	else if (e.keyCode == '13') {
+       // Start new game
+	   if(strike)
+	   startNewGame()
+    }
+
 }
 
 </script>
