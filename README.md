@@ -1,3 +1,5 @@
+## Looking back at my old code, I realized: !!! THIS NEEDS A LOT OF IMPROVEMENT !!! Maybe I will make it better someday.
+
 # Snake-and-Food
 Snake and Food is a traditional "Snake" game written in JavaScript and comes with some new features.  
 
